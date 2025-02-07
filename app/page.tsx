@@ -1,6 +1,6 @@
 "use client"
 
-import { Button, Divider } from "@mui/material";
+import { Button, ButtonGroup, Divider, Typography } from "@mui/material";
 import { Stack, TextareaAutosize, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -9,15 +9,27 @@ import { Box } from "@mui/material";
 import UserCard from "@/components/user-card";
 import MapView from "@/components/map-view";
 import { Tlocation } from "@/types/types";
+import { AddCircle, Filter } from "@mui/icons-material";
+import DetailEditor from "@/components/edit-details";
+import { MapCameraProps } from "@vis.gl/react-google-maps";
+
+const initialCameraState = {
+	center: { lat: 54.7, lng: 12 },
+	zoom: 10
+}
 
 export default function Home() {
-	const [msg, setMsg] = useState<string>("")
+	// init params
+	const [mapCameraCenter, setMapCameraCenter] = useState<google.maps.LatLng>(initialCameraState.center)
+	const [zoom, setZoom] = useState<number>(initialCameraState.zoom)
 
-	const [mapPosition, setMapPosition] = useState<Tlocation>({ lat: 38, lon: 27 })
 
 	useEffect(() => {
-		console.log(mapPosition)
-	}, [mapPosition])
+		console.log(mapCameraCenter)
+	}, [mapCameraCenter])
+
+	// overlay de cadastro / edição de contatos
+	const [isOverlayVisible, setOverlayVisibility] = useState<boolean>(false)
 
 	return (
 		<Box
@@ -30,7 +42,8 @@ export default function Home() {
 			}}>
 			{/* left area | users */}
 			<Box sx={{
-				width: '30%',
+				minWidth: '20%',
+				maxWidth: '25%',
 				borderRadius: 1,
 				borderColor: 'black',
 				borderWidth: 1,
@@ -45,6 +58,37 @@ export default function Home() {
 					justifyContent: 'space-around',
 					gap: 1
 				}}>
+					{/* top part com filtros e Add user */}
+					<Box sx={{
+						width: 1,
+						height: 0.1,
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'space-around'
+					}}>
+						<Button variant="contained" type="button" sx={{
+							width: 0.5,
+							gap: 1
+						}}
+							onClick={() => setOverlayVisibility(true)}
+						>
+							<AddCircle />
+							<Typography variant="button" >Add a Contact </Typography>
+						</Button>
+						{/* TODO */}
+						{/* Add the filters here */}
+						<ButtonGroup variant="contained" size="medium" sx={{ width: 0.4 }}>
+							<Button onClick={() => setMapCameraCenter({ lat: 10, lng: 10 })}>
+								<Filter />
+							</Button>
+							<Button>
+								<Filter />
+							</Button>
+							<Button>
+								<Filter />
+							</Button>
+						</ButtonGroup>
+					</Box>
 					<Stack sx={{
 						width: 1,
 						height: '90%',
@@ -52,6 +96,7 @@ export default function Home() {
 						gap: 1,
 						p: 1
 					}}>
+						{/* map de usuários | placeholder até implementar o banco */}
 						{
 							[...Array(16)].map((v, index) => (
 								<Stack
@@ -64,8 +109,6 @@ export default function Home() {
 										name="Lorem Ipsum"
 										description="Placeholder"
 										image_url="/public/globe.svg"
-										location={{ lat: 53.54, lon: 10 }}
-										setLocation={setMapPosition}
 									/>
 
 									{/* pra no último elemento não ter um divider em baixo */}
@@ -93,15 +136,24 @@ export default function Home() {
 
 				</Box>
 			</Box>
+
 			{/* map area | user interaction (mostly) */}
 			<Box sx={{
-				height: '100%',
+				height: 1,
+				display: 'flex',
 				flex: 1,
 				borderColor: 'black',
 				borderWidth: 1,
-				borderRadius: 1
+				borderRadius: 1,
 			}}>
-				<MapView location={mapPosition} zoom={5} />
+				<Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
+					<Box sx={{ width: '100%', height: '100%' }}>
+						<MapView zoom={zoom} setZoom={setZoom} mapCenter={mapCameraCenter} setMapCenter={setMapCameraCenter} />
+					</Box>
+					{/* overlay pra editar os contatos */}
+					{isOverlayVisible && <DetailEditor />}
+				</Box>
+
 			</Box>
 		</Box>
 	)

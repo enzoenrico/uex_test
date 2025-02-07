@@ -9,12 +9,9 @@ interface UserCardProps {
 	name: string
 	image_url: string
 	description: string
-	location: TLocation
-	// mostrar a posição no mapa
-	setLocation: (l: Tlocation) => void
 }
 
-export default function UserCard({ name, image_url, description, location, setLocation }: UserCardProps) {
+export default function UserCard({ name, image_url, description }: UserCardProps) {
 	const [details, setDetails] = useState<boolean>(false)
 
 	return (
@@ -23,15 +20,16 @@ export default function UserCard({ name, image_url, description, location, setLo
 			minHeight: '3rem',
 			display: 'flex',
 			alignItems: 'center',
-			justifyContent: 'space-evenly',
 			cursor: 'pointer',
 			p: 2,
-			":hover": { bgcolor: 'gray', borderColor: 'blue', borderWidth: 1, }
+			borderWidth: 1,
+			":hover": { bgcolor: 'gray', borderColor: 'blue', },
+			transition: '0.25s ease-in-out'
 		}}
 			//  show editing and interactions on hover
 			onMouseEnter={() => {
 				setDetails(true)
-				setLocation(location)
+				// setLocation(location)
 			}}
 			onMouseLeave={() => setDetails(false)}
 		>
@@ -51,7 +49,7 @@ export default function UserCard({ name, image_url, description, location, setLo
 				</Typography>
 			</Stack>
 
-			{details ? (<PersonPinCircle />) : <p>no</p>}
+			{/* {details ? (<PersonPinCircle />) : <p>no</p>} */}
 
 		</Card>
 

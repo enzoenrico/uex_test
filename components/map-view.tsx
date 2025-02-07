@@ -1,31 +1,55 @@
+"use client"
 import { Tlocation } from "@/types/types"
-import { Input } from "@mui/material"
+import { Input, Typography } from "@mui/material"
 import { Box } from "@mui/system"
-import { APIProvider, Map } from "@vis.gl/react-google-maps"
+import { APIProvider, Map, MapCameraChangedEvent, MapCameraProps } from "@vis.gl/react-google-maps"
+import { Suspense, useCallback, useEffect, useState } from "react"
 
 interface MapViewProps {
-	location: Tlocation
+	mapCenter: google.maps.LatLng
+	setMapCenter: (e: google.maps.LatLng) => void
+
 	zoom: number
+	setZoom: (n: number) => void
 }
 
-export default function MapView({ location, zoom }: MapViewProps) {
+
+export default function MapView({ zoom, setZoom, mapCenter, setMapCenter }: MapViewProps) {
+	// preciso passar isso do parent pro mapa, pra cada posição poder ser passada de cima e editada desse componente	
+	// const [mapCenter, setMapCenter] = useState<google.maps.LatLng>({ lat: 54.54, lng: 53 })
+	// const [zoom, setZoom] = useState(9)
+
+
 	return (
 		<APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
 			<Box sx={{
 				width: 1,
 				height: 1,
-				borderRadius: 1
+				borderRadius: 1,
+				display: 'flex',
+				justifyContent: 'center',
+				alignItems: 'center'
 			}}>
-				<Map
-					zoomControl
-					fullscreenControl
-					defaultZoom={zoom}
-					// problemas com o centro do mpa
-					// tentar definir ele programaticamente retorna um error de parsing
-
-					defaultCenter={{ lat: 10, lng: 20 }}
-				/>
+				{/* fallback no caso do mapa não carregar */}
+				<Suspense fallback={
+					<Typography variant="h3">
+						Mapa carregando...
+					</Typography>
+				}>
+					<Map
+						center={mapCenter}
+						zoom={zoom}
+						reuseMaps={true}
+						// onCenterChanged={(map) => setMapCenter((new_pos) => {
+						// 	console.log(new_pos, map.detail)
+						// 	return map.detail.center
+						// })}
+						onZoomChanged={(map) => setZoom(map.detail.zoom)}
+						gestureHandling={'greedy'}
+						onDrag={(map) => setMapCenter(map.detail.center)}
+					/>
+				</Suspense>
 			</Box>
-		</APIProvider>
+		</APIProvider >
 	)
 }
