@@ -1,6 +1,7 @@
 'use client'
 
-import { createTheme, ThemeProvider as MUIThemeProvider } from "@mui/material"
+import { DarkMode, Person, ToggleOff, WbSunny } from "@mui/icons-material"
+import { Button, createTheme, Fab, ThemeProvider as MUIThemeProvider } from "@mui/material"
 import CssBaseline from '@mui/material/CssBaseline'
 import React, { createContext, useContext, useState, useEffect } from "react"
 
@@ -41,13 +42,15 @@ export function AppThemeProvider({ children }: ThemeProps) {
 	const [isDarkMode, setDarkMode] = useState<boolean>(false)
 
 	useEffect(() => {
-		if (localStorage.getItem('darkMode_uex') === 'true') {
-			setDarkMode(true)
-		}
 		// detecção de tema preferido pelo user!!
 		// faz um watchMedia pra achar a propriedade de dark mode na primeira vez
 		const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
 		setDarkMode(prefersDarkMode);
+
+		if (localStorage.getItem('darkMode_uex') === 'true') {
+			setDarkMode(true)
+			return
+		}
 
 		// roda um event listener pra ver se a propriedade muda e altera o tema de acordo
 		// ^ preeettty cool na minha opniao 
@@ -68,6 +71,23 @@ export function AppThemeProvider({ children }: ThemeProps) {
 	return (
 		<ThemeContext.Provider value={{ isDarkMode, toggleTheme }}>
 			<MUIThemeProvider theme={isDarkMode ? darkMode : lightMode}>
+				<Fab
+					variant="circular"
+					color={isDarkMode ? 'primary' : 'secondary'}
+					size="medium"
+					onClick={toggleTheme}
+					sx={{
+						position: 'fixed',
+						bottom: 16,
+						right: 16,
+						zIndex: 1000
+					}}
+				>
+					{isDarkMode ?
+						<WbSunny />
+						: <DarkMode />
+					}
+				</Fab>
 				{/* default styling da lib */}
 				<CssBaseline />
 				{children}

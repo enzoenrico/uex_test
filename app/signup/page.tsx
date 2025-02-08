@@ -10,7 +10,8 @@ import {
 	InputAdornment,
 	IconButton,
 	Link,
-	alpha
+	alpha,
+	Snackbar
 } from '@mui/material';
 
 import {
@@ -24,6 +25,8 @@ import {
 
 
 export default function Signup() {
+	const [snackbarShowing, setSnackBarVisibility] = useState<boolean>(false)
+	const [snackbarMessage, setSnackBarMessage] = useState<string>("All good!")
 	const [showPassword, setShowPassword] = useState(false);
 	const [formData, setFormData] = useState({
 		email: '',
@@ -41,11 +44,19 @@ export default function Signup() {
 		}));
 	};
 
-	const handleSubmit = (e) => {
+	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
-		console.log('Form submitted:', formData);
-	};
+		const emptyFields = Object.values(formData).some(value => !value.trim() || value == 0);
 
+		if (emptyFields) {
+			setSnackBarMessage("Preencha todos os campos antes de enviar!")
+			setSnackBarVisibility(true)
+			return;
+		}
+
+		const payload = formData;
+		console.log(payload);
+	}
 	const formatCPF = (value) => {
 		return value
 			.replace(/\D/g, '')
@@ -101,6 +112,7 @@ export default function Signup() {
 						</Typography>
 					</Box>
 
+					{/* signup form */}
 					<Box component="form" onSubmit={handleSubmit} sx={{
 						display: 'flex', flexDirection: 'column', gap: 3
 					}}>
@@ -145,8 +157,8 @@ export default function Signup() {
 
 							<TextField
 								fullWidth
-								label="Phone"
-								name="telefone"
+								label="Telefone"
+								name="phone"
 								value={formData.telefone}
 								onChange={(e) => {
 									const formatted = formatPhone(e.target.value);
@@ -165,7 +177,7 @@ export default function Signup() {
 						<TextField
 							fullWidth
 							label="Senha"
-							name="password"
+							name="pass"
 							type={showPassword ? "text" : "password"}
 							value={formData.password}
 							onChange={handleChange}
@@ -242,6 +254,12 @@ export default function Signup() {
 					</Box>
 				</CardContent>
 			</Card>
+			<Snackbar
+				open={snackbarShowing}
+				autoHideDuration={2500}
+				onClose={() => setSnackBarVisibility(false)}
+				message={snackbarMessage}
+			/>
 		</Box>
 	);
 };
