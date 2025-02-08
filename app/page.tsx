@@ -10,7 +10,7 @@ import UserCard from "@/components/user-card";
 import MapView from "@/components/map-view";
 import { Tlocation } from "@/types/types";
 import { AddCircle, Filter } from "@mui/icons-material";
-import DetailEditor from "@/components/edit-details";
+import FormOverlay from "@/components/edit-details";
 import { MapCameraProps } from "@vis.gl/react-google-maps";
 
 const initialCameraState = {
@@ -22,7 +22,6 @@ export default function Home() {
 	// init params
 	const [mapCameraCenter, setMapCameraCenter] = useState<google.maps.LatLng>(initialCameraState.center)
 	const [zoom, setZoom] = useState<number>(initialCameraState.zoom)
-
 
 	useEffect(() => {
 		console.log(mapCameraCenter)
@@ -66,8 +65,7 @@ export default function Home() {
 						alignItems: 'center',
 						justifyContent: 'space-around'
 					}}>
-						<Button variant="contained" type="button" sx={{
-							width: 0.5,
+						<Button size="medium" variant="contained" type="button" sx={{
 							gap: 1
 						}}
 							onClick={() => setOverlayVisibility(true)}
@@ -151,7 +149,7 @@ export default function Home() {
 						<MapView zoom={zoom} setZoom={setZoom} mapCenter={mapCameraCenter} setMapCenter={setMapCameraCenter} />
 					</Box>
 					{/* overlay pra editar os contatos */}
-					{isOverlayVisible && <DetailEditor />}
+					{isOverlayVisible && <FormOverlay />}
 				</Box>
 
 			</Box>

@@ -19,7 +19,6 @@ export default function MapView({ zoom, setZoom, mapCenter, setMapCenter }: MapV
 	// const [mapCenter, setMapCenter] = useState<google.maps.LatLng>({ lat: 54.54, lng: 53 })
 	// const [zoom, setZoom] = useState(9)
 
-
 	return (
 		<APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
 			<Box sx={{
@@ -40,10 +39,6 @@ export default function MapView({ zoom, setZoom, mapCenter, setMapCenter }: MapV
 						center={mapCenter}
 						zoom={zoom}
 						reuseMaps={true}
-						// onCenterChanged={(map) => setMapCenter((new_pos) => {
-						// 	console.log(new_pos, map.detail)
-						// 	return map.detail.center
-						// })}
 						onZoomChanged={(map) => setZoom(map.detail.zoom)}
 						gestureHandling={'greedy'}
 						onDrag={(map) => setMapCenter(map.detail.center)}
