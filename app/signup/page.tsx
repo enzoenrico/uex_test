@@ -22,40 +22,66 @@ import {
 	Visibility,
 	VisibilityOff
 } from '@mui/icons-material';
+import { useRouter } from 'next/navigation';
+import { User } from '@prisma/client';
 
 
 export default function Signup() {
+	//pro redirect
+	const router = useRouter()
+
 	const [snackbarShowing, setSnackBarVisibility] = useState<boolean>(false)
 	const [snackbarMessage, setSnackBarMessage] = useState<string>("All good!")
 	const [showPassword, setShowPassword] = useState(false);
+
 	const [formData, setFormData] = useState({
-		email: '',
-		cpf: '',
-		telefone: '',
-		password: '',
-		confirmPassword: ''
+		email: 'e.enrico2005@gmail.com',
+		cpf: '10481285989',
+		phone: '41991924190',
+		pass: 'password',
+		confirmPass: 'password',
+		address: 'placeholder'
 	});
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
+
 		setFormData(prev => ({
 			...prev,
 			[name]: value
 		}));
 	};
 
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		const emptyFields = Object.values(formData).some(value => !value.trim() || value == 0);
+		console.log(formData)
 
-		if (emptyFields) {
+		// validação se nada vier vazio || null
+		const emptyFields = Object.values(formData).some(value => String(value.length) < 1);
+		// confirmar a senha também conta
+		if (emptyFields || formData.pass !== formData.confirmPass) {
 			setSnackBarMessage("Preencha todos os campos antes de enviar!")
 			setSnackBarVisibility(true)
 			return;
 		}
+		const payload: User = {
+			email: formData.email,
+			cpf: formData.cpf,
+			phone: formData.phone,
+			pass: formData.pass,
+			addressId: 'dev'
+		}
 
-		const payload = formData;
-		console.log(payload);
+		const response = await fetch('/api/signup', {
+			method: 'POST',
+			body: JSON.stringify(payload)
+		})
+
+		if (response.ok) {
+			// set the session token
+			
+			router.push("/")
+		}
 	}
 	const formatCPF = (value) => {
 		return value
@@ -67,6 +93,7 @@ export default function Signup() {
 	};
 
 	const formatPhone = (value) => {
+		//formato br com (**)*****-****
 		return value
 			.replace(/\D/g, '')
 			.replace(/(\d{2})(\d)/, '($1) $2')
@@ -159,10 +186,10 @@ export default function Signup() {
 								fullWidth
 								label="Telefone"
 								name="phone"
-								value={formData.telefone}
+								value={formData.phone}
 								onChange={(e) => {
 									const formatted = formatPhone(e.target.value);
-									setFormData(prev => ({ ...prev, telefone: formatted }));
+									setFormData(prev => ({ ...prev, phone: formatted }));
 								}}
 								InputProps={{
 									startAdornment: (
@@ -179,7 +206,7 @@ export default function Signup() {
 							label="Senha"
 							name="pass"
 							type={showPassword ? "text" : "password"}
-							value={formData.password}
+							value={formData.pass}
 							onChange={handleChange}
 							InputProps={{
 								startAdornment: (
@@ -203,9 +230,9 @@ export default function Signup() {
 						<TextField
 							fullWidth
 							label="Confirmar senha"
-							name="confirmPassword"
+							name="confirmPass"
 							type={showPassword ? "text" : "password"}
-							value={formData.confirmPassword}
+							value={formData.confirmPass}
 							onChange={handleChange}
 							InputProps={{
 								startAdornment: (

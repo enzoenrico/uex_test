@@ -41,8 +41,7 @@ export default function Home() {
 			}}>
 			{/* left area | users */}
 			<Box sx={{
-				minWidth: '20%',
-				maxWidth: '25%',
+				width: '25%',
 				borderRadius: 1,
 				borderColor: 'black',
 				borderWidth: 1,
