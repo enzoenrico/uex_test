@@ -42,25 +42,27 @@ export function AppThemeProvider({ children }: ThemeProps) {
 	const [isDarkMode, setDarkMode] = useState<boolean>(false)
 
 	useEffect(() => {
-		// detecção de tema preferido pelo user!!
-		// faz um watchMedia pra achar a propriedade de dark mode na primeira vez
+		// checando o local-storage pra achar a flag definida pelo user
+		const storedDarkMode = localStorage.getItem('darkMode_uex');
+		if (storedDarkMode !== null) {
+			setDarkMode(storedDarkMode === 'true');
+			return;
+		}
+
+		//aí se o usuário nunca setou uma preferencia, coloca em dark mode
 		const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
 		setDarkMode(prefersDarkMode);
 
-		if (localStorage.getItem('darkMode_uex') === 'true') {
-			setDarkMode(true)
-			return
-		}
-
-		// roda um event listener pra ver se a propriedade muda e altera o tema de acordo
-		// ^ preeettty cool na minha opniao 
 		const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 		const handleChange = (e: MediaQueryListEvent) => {
-			setDarkMode(e.matches);
+			// só atualiza se o valor já tiver sido definido
+			if (localStorage.getItem('darkMode_uex') === null) {
+				setDarkMode(e.matches);
+			}
 		};
 		mediaQuery.addEventListener('change', handleChange);
 
-		//dismount sempre!!
+		//dismout func
 		return () => mediaQuery.removeEventListener('change', handleChange);
 	}, [])
 	const toggleTheme = () => {

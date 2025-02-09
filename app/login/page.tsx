@@ -10,7 +10,8 @@ import {
 	InputAdornment,
 	IconButton,
 	Link,
-	alpha
+	alpha,
+	Snackbar
 } from '@mui/material';
 
 import {
@@ -21,18 +22,43 @@ import {
 	Visibility,
 	VisibilityOff
 } from '@mui/icons-material';
+import { useRouter } from 'next/navigation';
 
 
 export default function Signup() {
+	const router = useRouter()
+
+	const [snackbarShowing, setSnackBarVisibility] = useState<boolean>(false)
+	const [snackbarMessage, setSnackBarMessage] = useState<string>("All good!")
+
 	const [showPassword, setShowPassword] = useState(false);
 	const [formData, setFormData] = useState({
 		login_str: '',
 		password: ''
 	});
 
-	const handleLogin() => {
+	const handleLogin = async (e: React.FormEvent) => {
+		e.preventDefault();
+		try {
+			const login_response = await fetch('/api/login', {
+				method: 'POST',
+				body: JSON.stringify(formData)
+			});
 
-	}
+			if (login_response.ok) {
+				router.push('/');
+			}
+			if (login_response.status === 401) {
+				//faz o toast
+				setSnackBarMessage("Credenciais inválidas!!")
+				setSnackBarVisibility(true)
+
+				throw new Error("Credenciais inválidas")
+			}
+		} catch (error: Error) {
+			console.error('Login failed:', error);
+		}
+	};
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
@@ -40,11 +66,6 @@ export default function Signup() {
 			...prev,
 			[name]: value
 		}));
-	};
-
-	const handleSubmit = (e) => {
-		e.preventDefault();
-		console.log('Form submitted:', formData);
 	};
 
 	const formatCPF = (value) => {
@@ -97,7 +118,7 @@ export default function Signup() {
 						</Typography>
 					</Box>
 
-					<Box component="form" onSubmit={handleSubmit} sx={{
+					<Box component="form" onSubmit={handleLogin} sx={{
 						display: 'flex', flexDirection: 'column', gap: 3
 					}}>
 						<TextField
@@ -165,9 +186,6 @@ export default function Signup() {
 									transition: 'all 0.1s ease-in-out'
 								}
 							}}
-							onClick={() => {
-								setTimeout(handleLogin(), 500) //olha a animação :o
-							}}
 						>
 							Fazer login
 						</Button>
@@ -176,15 +194,22 @@ export default function Signup() {
 							textAlign: 'center', mt: 2
 						}}>
 							<Typography variant="body2" color="text.secondary">
-								Já tem uma conta? Faça {' '}
-								<Link href="/login" underline="hover" color="primary.main">
-									Log in
+								Ainda não tem uma conta? {' '}
+								<Link href="/signup" underline="hover" color="primary.main">
+									Crie uma conta aqui!
 								</Link>
 							</Typography>
 						</Box>
 					</Box>
 				</CardContent>
 			</Card>
+			<Snackbar
+				open={snackbarShowing}
+				autoHideDuration={2500}
+				onClose={() => setSnackBarVisibility(false)}
+				message={snackbarMessage}
+			/>
+
 		</Box >
 	);
 };

@@ -9,9 +9,10 @@ import { Box } from "@mui/material";
 import UserCard from "@/components/user-card";
 import MapView from "@/components/map-view";
 import { Tlocation } from "@/types/types";
-import { AddCircle, Filter } from "@mui/icons-material";
+import { AddCircle, EmojiPeopleTwoTone, Filter, People, PeopleOutline, Route } from "@mui/icons-material";
 import FormOverlay from "@/components/edit-details";
 import { MapCameraProps } from "@vis.gl/react-google-maps";
+import { useSession } from "@/utils/use-session";
 
 const initialCameraState = {
 	center: { lat: 54.7, lng: 12 },
@@ -30,6 +31,9 @@ export default function Home() {
 	// overlay de cadastro / edição de contatos
 	const [isOverlayVisible, setOverlayVisibility] = useState<boolean>(false)
 
+	// user vindo da session
+	const { user: session_user, loadingUser } = useSession()
+
 	return (
 		<Box
 			sx={{
@@ -41,8 +45,7 @@ export default function Home() {
 			}}>
 			{/* left area | users */}
 			<Box sx={{
-				minWidth: '20%',
-				maxWidth: '25%',
+				width: '25%',
 				borderRadius: 1,
 				borderColor: 'black',
 				borderWidth: 1,
@@ -77,10 +80,10 @@ export default function Home() {
 						{/* Add the filters here */}
 						<ButtonGroup variant="contained" size="medium" sx={{ width: 0.4 }}>
 							<Button onClick={() => setMapCameraCenter({ lat: 10, lng: 10 })}>
-								<Filter />
+								<People />
 							</Button>
 							<Button>
-								<Filter />
+								<Route />
 							</Button>
 							<Button>
 								<Filter />
@@ -123,9 +126,9 @@ export default function Home() {
 						width: 1,
 						maxHeight: 0.1
 					}}>
-						{/* mudar esse componente pra ser um standalone */}
+						{/* session user ta retornando undefined */}
 						<UserCard
-							name="logged user"
+							name={session_user ? session_user.email : "nao "}
 							description="change the description for it"
 							image_url="/public/globe.svg"
 						/>
