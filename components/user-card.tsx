@@ -3,7 +3,7 @@ import { Tlocation } from "@/types/types"
 import { PersonPinCircle } from "@mui/icons-material"
 import { Avatar, Card, Stack, Typography } from "@mui/material"
 import { AnimatePresence } from "framer-motion"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 interface UserCardProps {
 	name: string
@@ -13,6 +13,10 @@ interface UserCardProps {
 
 export default function UserCard({ name, image_url, description }: UserCardProps) {
 	const [details, setDetails] = useState<boolean>(false)
+
+	useEffect(() => {
+		console.log("User card getting name: ", name)
+	})
 
 	return (
 		<Card sx={{

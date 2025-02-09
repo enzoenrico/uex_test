@@ -10,7 +10,8 @@ import {
 	InputAdornment,
 	IconButton,
 	Link,
-	alpha
+	alpha,
+	Snackbar
 } from '@mui/material';
 
 import {
@@ -26,6 +27,10 @@ import { useRouter } from 'next/navigation';
 
 export default function Signup() {
 	const router = useRouter()
+
+	const [snackbarShowing, setSnackBarVisibility] = useState<boolean>(false)
+	const [snackbarMessage, setSnackBarMessage] = useState<string>("All good!")
+
 	const [showPassword, setShowPassword] = useState(false);
 	const [formData, setFormData] = useState({
 		login_str: '',
@@ -43,7 +48,14 @@ export default function Signup() {
 			if (login_response.ok) {
 				router.push('/');
 			}
-		} catch (error) {
+			if (login_response.status === 401) {
+				//faz o toast
+				setSnackBarMessage("Credenciais inválidas!!")
+				setSnackBarVisibility(true)
+
+				throw new Error("Credenciais inválidas")
+			}
+		} catch (error: Error) {
 			console.error('Login failed:', error);
 		}
 	};
@@ -191,6 +203,13 @@ export default function Signup() {
 					</Box>
 				</CardContent>
 			</Card>
+			<Snackbar
+				open={snackbarShowing}
+				autoHideDuration={2500}
+				onClose={() => setSnackBarVisibility(false)}
+				message={snackbarMessage}
+			/>
+
 		</Box >
 	);
 };

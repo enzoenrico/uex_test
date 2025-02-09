@@ -79,8 +79,8 @@ export default function Signup() {
 
 		if (response.ok) {
 			// set the session token
-			
-			router.push("/")
+
+			router.push('/')
 		}
 	}
 	const formatCPF = (value) => {
@@ -201,6 +201,7 @@ export default function Signup() {
 							/>
 
 						</Box>
+						{/* insir map search aqui */}
 						<TextField
 							fullWidth
 							label="Senha"
