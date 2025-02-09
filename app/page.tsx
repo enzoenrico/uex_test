@@ -1,6 +1,6 @@
 "use client"
 
-import { Button, ButtonGroup, Divider, Typography } from "@mui/material";
+import { Button, ButtonGroup, CircularProgress, Divider, Typography } from "@mui/material";
 import { Stack, TextareaAutosize, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -14,6 +14,7 @@ import FormOverlay from "@/components/edit-details";
 import { MapCameraProps } from "@vis.gl/react-google-maps";
 import { useSession } from "@/utils/use-session";
 import SearchBar from "@/components/search-bar";
+import { User } from "@prisma/client";
 
 const initialCameraState = {
 	center: { lat: 54.7, lng: 12 },
@@ -34,6 +35,21 @@ export default function Home() {
 
 	// user vindo da session
 	const { user: session_user, loadingUser } = useSession()
+
+	const [incomingUsers, setIncomingUsers] = useState<User[] | null>(null)
+
+	useEffect(() => {
+		async function fetchUsers() {
+			try {
+				const users = await fetch('/api/users');
+				const json_users = await users.json();
+				setIncomingUsers(json_users);
+			} catch (error) {
+				console.error("Couldn't fetch users")
+			}
+		}
+		fetchUsers();
+	}, [])
 
 	return (
 		<Box
@@ -102,23 +118,31 @@ export default function Home() {
 					}}>
 						{/* map de usuários | placeholder até implementar o banco */}
 						{
-							[...Array(16)].map((v, index) => (
-								<Stack
-									key={index}
-									sx={{
-										width: 1,
-										gap: 1
-									}}>
-									<UserCard
-										name="Lorem Ipsum"
-										description="Placeholder"
-										image_url="/public/globe.svg"
-									/>
-
-									{/* pra no último elemento não ter um divider em baixo */}
-									{index < 15 && <Divider sx={{ width: '100%' }} variant="fullWidth" />}
-								</Stack>
-							))
+							!incomingUsers ?
+								(
+									<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+										<CircularProgress />
+									</Box>
+								) : incomingUsers.length < 1 ? (
+									<Typography>No users found</Typography>
+								) : (
+									incomingUsers.map((user, index) => (
+										<Stack
+											key={user.id}
+											sx={{
+												width: 1,
+												gap: 1
+											}}>
+											<UserCard
+												name={user.email}
+												description={user.name || "No description"}
+												image_url="/public/globe.svg"
+												db_info={user}
+											/>
+											{index < incomingUsers.length - 1 && <Divider sx={{ width: '100%' }} variant="fullWidth" />}
+										</Stack>
+									))
+								)
 						}
 					</Stack>
 

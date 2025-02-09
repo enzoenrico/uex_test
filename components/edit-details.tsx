@@ -30,7 +30,7 @@ export default function FormOverlay({ setOverlayVisibility }: OverlayProps) {
 				}}
 			>
 				<Typography variant="h6">Adicione um novo amigo</Typography>
-				
+
 				<TextField
 					label="Name"
 					variant="outlined"
@@ -42,14 +42,11 @@ export default function FormOverlay({ setOverlayVisibility }: OverlayProps) {
 					variant="outlined"
 					fullWidth
 				/>
-				<TextareaAutosize
-					minRows={3}
-					placeholder="Description"
-					style={{
-						width: '100%',
-						padding: '8px',
-						borderRadius: '4px'
-					}}
+				<TextField
+					label="Descrição"
+					type='text'
+					variant='outlined'
+					fullWidth
 				/>
 				<SearchBar />
 				<Button

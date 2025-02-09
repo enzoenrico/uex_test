@@ -39,6 +39,7 @@ export const SearchBar = ({ setSelectedPlace }) => {
 				inputRef={inputRef}
 				fullWidth
 				placeholder="Insira um endereço aqui"
+				label="Endereço"
 				variant="outlined"
 				InputProps={{
 					startAdornment: <Search sx={{ color: 'text.secondary', mr: 1 }} />,
