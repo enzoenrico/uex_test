@@ -1,10 +1,15 @@
 import { Box, Button, Stack, TextareaAutosize, TextField, Typography } from '@mui/material'
+import SearchBar from './search-bar'
+import { useState, useCallback } from 'react'
 
 interface OverlayProps {
 	setOverlayVisibility: (b: boolean) => void
 }
 
 export default function FormOverlay({ setOverlayVisibility }: OverlayProps) {
+	const [selectedPlace, setSelectedPlace] = useState<google.maps.places.PlaceResult | null>(null)
+
+
 	return (
 		<Box sx={{
 			position: 'absolute',
@@ -24,7 +29,8 @@ export default function FormOverlay({ setOverlayVisibility }: OverlayProps) {
 					p: 2
 				}}
 			>
-				<Typography variant="h6">Contact Details</Typography>
+				<Typography variant="h6">Adicione um novo amigo</Typography>
+				
 				<TextField
 					label="Name"
 					variant="outlined"
@@ -45,12 +51,12 @@ export default function FormOverlay({ setOverlayVisibility }: OverlayProps) {
 						borderRadius: '4px'
 					}}
 				/>
+				<SearchBar />
 				<Button
 					variant="contained"
-					type="submit"
 					sx={{ width: 'fit-content' }}
 				>
-					Submit
+					Adicionar contato
 				</Button>
 			</Stack>
 		</Box>

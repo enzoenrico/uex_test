@@ -2,7 +2,7 @@
 import { Tlocation } from "@/types/types"
 import { Input, Typography } from "@mui/material"
 import { Box } from "@mui/system"
-import { APIProvider, Map, MapCameraChangedEvent, MapCameraProps } from "@vis.gl/react-google-maps"
+import { Map, MapCameraChangedEvent, MapCameraProps } from "@vis.gl/react-google-maps"
 import { Suspense, useCallback, useEffect, useState } from "react"
 
 interface MapViewProps {
@@ -20,31 +20,29 @@ export default function MapView({ zoom, setZoom, mapCenter, setMapCenter }: MapV
 	// const [zoom, setZoom] = useState(9)
 
 	return (
-		<APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
-			<Box sx={{
-				width: 1,
-				height: 1,
-				borderRadius: 1,
-				display: 'flex',
-				justifyContent: 'center',
-				alignItems: 'center'
-			}}>
-				{/* fallback no caso do mapa não carregar */}
-				<Suspense fallback={
-					<Typography variant="h3">
-						Mapa carregando...
-					</Typography>
-				}>
-					<Map
-						center={mapCenter}
-						zoom={zoom}
-						reuseMaps={true}
-						onZoomChanged={(map) => setZoom(map.detail.zoom)}
-						gestureHandling={'greedy'}
-						onDrag={(map) => setMapCenter(map.detail.center)}
-					/>
-				</Suspense>
-			</Box>
-		</APIProvider >
+		<Box sx={{
+			width: 1,
+			height: 1,
+			borderRadius: 1,
+			display: 'flex',
+			justifyContent: 'center',
+			alignItems: 'center'
+		}}>
+			{/* fallback no caso do mapa não carregar */}
+			<Suspense fallback={
+				<Typography variant="h3">
+					Mapa carregando...
+				</Typography>
+			}>
+				<Map
+					center={mapCenter}
+					zoom={zoom}
+					reuseMaps={true}
+					onZoomChanged={(map) => setZoom(map.detail.zoom)}
+					gestureHandling={'greedy'}
+					onDrag={(map) => setMapCenter(map.detail.center)}
+				/>
+			</Suspense>
+		</Box>
 	)
 }

@@ -13,6 +13,7 @@ import { AddCircle, EmojiPeopleTwoTone, Filter, People, PeopleOutline, Route } f
 import FormOverlay from "@/components/edit-details";
 import { MapCameraProps } from "@vis.gl/react-google-maps";
 import { useSession } from "@/utils/use-session";
+import SearchBar from "@/components/search-bar";
 
 const initialCameraState = {
 	center: { lat: 54.7, lng: 12 },
@@ -89,7 +90,9 @@ export default function Home() {
 								<Filter />
 							</Button>
 						</ButtonGroup>
+
 					</Box>
+
 					<Stack sx={{
 						width: 1,
 						height: '90%',
@@ -154,7 +157,6 @@ export default function Home() {
 					{/* overlay pra editar os contatos */}
 					{isOverlayVisible && <FormOverlay />}
 				</Box>
-
 			</Box>
 		</Box>
 	)

@@ -3,6 +3,7 @@
 import { DarkMode, Person, ToggleOff, WbSunny } from "@mui/icons-material"
 import { Button, createTheme, Fab, ThemeProvider as MUIThemeProvider } from "@mui/material"
 import CssBaseline from '@mui/material/CssBaseline'
+import { APIProvider } from "@vis.gl/react-google-maps"
 import React, { createContext, useContext, useState, useEffect } from "react"
 
 const lightMode = createTheme({
@@ -92,7 +93,11 @@ export function AppThemeProvider({ children }: ThemeProps) {
 				</Fab>
 				{/* default styling da lib */}
 				<CssBaseline />
-				{children}
+				{/* colocando o api provider direto no theme provider pra conseguir rodar a api*/}
+				{/* de google maps search fora do componenente do mapa */}
+				<APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
+					{children}
+				</APIProvider>
 			</MUIThemeProvider>
 		</ThemeContext.Provider>
 	)
