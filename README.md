@@ -9,21 +9,13 @@ Além do código para o teste, você encontrará também:
 
 Essa é uma aplicação desenvolvida em base no framework *NextJS*, usando **AppRouter**
 
-## TODO
+## para rodar o projeto
 
-### Requisitos mínimos
+Esse projeto usa o `pnpm` como package manager, para rodar localmente, execute
 
-- [ ] Se cadastrar para utilizar a plataforma.
-- [ ] Realizar login e logout.
-- [ ] Gerenciar sua lista de contatos.
-- [ ] Realizar pesquisa de endereço como ajuda ao cadastro de contatos.
-- [ ] Excluir a sua própria conta
-
-### Nice to have
-
-- [ ] Animações em telas
-- [ ] Banco de dados persistente
-- [ ] Login usando Oauth2
-- [ ] Hostear o projeto (Vercel | Digitalocean )
-
-^_~
+```bash
+	git clone https://github.com/enzoenrico/uex_test
+	cd uex_test
+	pnpm i
+	pnpm dev
+```

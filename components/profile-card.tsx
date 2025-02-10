@@ -1,9 +1,10 @@
 "use client"
 import { Tlocation } from "@/types/types"
+import { useSession } from "@/utils/use-session"
 import { PersonPinCircle } from "@mui/icons-material"
 import { Avatar, Button, Card, Popover, Stack, Typography } from "@mui/material"
 import { Container } from "@mui/system"
-import { Address } from "@prisma/client"
+import { Address, User } from "@prisma/client"
 import { AnimatePresence } from "framer-motion"
 import React, { useEffect, useState } from "react"
 
@@ -17,13 +18,15 @@ interface UserCardProps {
 	id?: string
 }
 
-export default function UserCard({ id, name, image_url, description, db_info, setAddress }: UserCardProps) {
+export default function ProfileCard({ name, description, db_info, setAddress }: UserCardProps) {
 	const [details, setDetails] = useState<boolean>(false)
 	const [anchor, setAnchor] = useState()
+	const { user, loading } = useSession()
 
-	const handleDeletion = async () => {
-		if (id) {
-			const deleted = await fetch(`/api/contacts/delete/${id}`, {
+	const handleDeletion = async (password: string) => {
+		console.log(db_info.email)
+		if (db_info.pass === password) {
+			const deleted = await fetch(`/api/users/${db_info.id}`, {
 				method: "DELETE"
 			})
 			if (deleted.ok) {
@@ -35,6 +38,7 @@ export default function UserCard({ id, name, image_url, description, db_info, se
 	const handleClick = async (e) => {
 		setDetails(true)
 		setAnchor(e.currentTarget)
+		console.log(db_info)
 		console.log('fetching address')
 		const address_data = await fetch(`/api/address/${db_info.addressId}`)
 		const j_add: Address = await address_data.json()
@@ -70,7 +74,7 @@ export default function UserCard({ id, name, image_url, description, db_info, se
 					{name}
 				</Typography>
 				<Typography variant="body2">
-					{description || 'no description provided'}
+					{description}
 				</Typography>
 			</Stack>
 
@@ -95,7 +99,18 @@ export default function UserCard({ id, name, image_url, description, db_info, se
 						}}>
 							Cancelar
 						</Button>
-						<Button variant="contained" color="error" size="small" onClick={handleDeletion}>
+						<Button
+							variant="contained"
+							color="error"
+							size="small"
+							onClick={(e) => {
+								e.stopPropagation();
+								const password = prompt("Por favor, digite sua senha para confirmar a exclusão:");
+								if (password) {
+									handleDeletion(password);
+								}
+							}}
+						>
 							Remover
 						</Button>
 					</Stack>
