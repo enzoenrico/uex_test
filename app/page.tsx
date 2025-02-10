@@ -9,7 +9,7 @@ import { Box } from "@mui/material";
 import UserCard from "@/components/user-card";
 import MapView from "@/components/map-view";
 import { Tlocation } from "@/types/types";
-import { AddCircle, EmojiPeopleTwoTone, Filter, People, PeopleOutline, Route } from "@mui/icons-material";
+import { AddCircle, EmojiPeopleTwoTone, Filter, People, PeopleOutline, PinSharp, Route } from "@mui/icons-material";
 import FormOverlay from "@/components/edit-details";
 import { MapCameraProps } from "@vis.gl/react-google-maps";
 import { useSession } from "@/utils/use-session";
@@ -27,17 +27,20 @@ export default function Home() {
 	const [mapCameraCenter, setMapCameraCenter] = useState<google.maps.LatLng>(initialCameraState.center)
 	const [zoom, setZoom] = useState<number>(initialCameraState.zoom)
 
+	const [mapPins, setMapPins] = useState<google.maps.LatLng>([])
+
 	useEffect(() => {
 		console.log(mapCameraCenter)
-	}, [mapCameraCenter])
+	})
 
 	// overlay de cadastro / edição de contatos
 	const [isOverlayVisible, setOverlayVisibility] = useState<boolean>(false)
 
 	const handleNewCameraCenter = (a: Address) => {
-			const latlng_obj = { lat: a.Lat, lng: a.Lng } as google.maps.LatLng
-			console.log(`Setting center in ${a.streetName} `)
-			setMapCameraCenter(latlng_obj)
+		const latlng_obj = { lat: a.Lat, lng: a.Lng } as google.maps.LatLng
+		console.log(`Setting center in ${a.streetName} `)
+		setMapCameraCenter(latlng_obj)
+		setMapPins([...mapPins, latlng_obj])
 	}
 
 	// user vindo da session
@@ -183,8 +186,19 @@ export default function Home() {
 				borderRadius: 1,
 			}}>
 				<Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
-					<Box sx={{ width: '100%', height: '100%' }}>
-						<MapView zoom={zoom} setZoom={setZoom} mapCenter={mapCameraCenter} setMapCenter={setMapCameraCenter} />
+					<Box
+						sx={{
+							width: '100%',
+							height: '100%'
+						}}
+					>
+						<MapView
+							zoom={zoom}
+							setZoom={setZoom}
+							mapCenter={mapCameraCenter}
+							setMapCenter={setMapCameraCenter}
+							pins={mapPins}
+						/>
 					</Box>
 					{/* overlay pra editar os contatos */}
 					{isOverlayVisible ? (<FormOverlay setOverlayVisibility={setOverlayVisibility} />) : null}
