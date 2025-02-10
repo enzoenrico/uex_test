@@ -1,6 +1,9 @@
+"use client"
 import { Box, Button, Stack, TextareaAutosize, TextField, Typography } from '@mui/material'
 import SearchBar from './search-bar'
 import { useState, useCallback } from 'react'
+import { Close } from '@mui/icons-material'
+
 
 interface OverlayProps {
 	setOverlayVisibility: (b: boolean) => void
@@ -8,7 +11,6 @@ interface OverlayProps {
 
 export default function FormOverlay({ setOverlayVisibility }: OverlayProps) {
 	const [selectedPlace, setSelectedPlace] = useState<google.maps.places.PlaceResult | null>(null)
-
 
 	return (
 		<Box sx={{
@@ -29,7 +31,19 @@ export default function FormOverlay({ setOverlayVisibility }: OverlayProps) {
 					p: 2
 				}}
 			>
-				<Typography variant="h6">Adicione um novo amigo</Typography>
+				<Box
+					display={'flex'}
+					justifyContent={'space-around'}
+					width={1}
+					height={1}
+
+				>
+					<Typography variant="h6">Adicione um novo amigo</Typography>
+					<Button onClick={() => setOverlayVisibility(false)}>
+						<Close />
+					</Button>
+
+				</Box>
 
 				<TextField
 					label="Name"
@@ -50,6 +64,7 @@ export default function FormOverlay({ setOverlayVisibility }: OverlayProps) {
 				/>
 				<SearchBar />
 				<Button
+					onClick={() => setOverlayVisibility(false)}
 					variant="contained"
 					sx={{ width: 'fit-content' }}
 				>

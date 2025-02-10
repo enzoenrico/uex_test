@@ -12,20 +12,18 @@ interface UserCardProps {
 	image_url: string
 	description: string
 	db_info: User
+	//latlng dentro do obj Address, pra usar o mapCenter
+	setAddress: (ll: Address) => void
 }
 
-export default function UserCard({ name, image_url, description, db_info }: UserCardProps) {
+export default function UserCard({ name, image_url, description, db_info, setAddress }: UserCardProps) {
 	const [details, setDetails] = useState<boolean>(false)
-	const [addy, setAddy] = useState<Address | null>(null)
-
-	useEffect(() => {
-		console.log("User card getting name: ", name)
-	})
 
 	const handleClick = async () => {
+		console.log('fetching address')
 		const address_data = await fetch(`/api/address/${db_info.addressId}`)
 		const j_add: Address = await address_data.json()
-		setAddy(j_add)
+		setAddress(j_add)
 	}
 
 	return (
@@ -46,6 +44,8 @@ export default function UserCard({ name, image_url, description, db_info }: User
 				// setLocation(location)
 			}}
 			onMouseLeave={() => setDetails(false)}
+
+			onClick={handleClick}
 		>
 			<Avatar sx={{
 				mr: 2
@@ -62,12 +62,6 @@ export default function UserCard({ name, image_url, description, db_info }: User
 					{description}
 				</Typography>
 			</Stack>
-			{addy ? (
-				<p>{addy.streetName}</p>
-			)
-				: (
-					"naes"
-				)}
 
 			{/* {details ? (<PersonPinCircle />) : <p>no</p>} */}
 

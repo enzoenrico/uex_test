@@ -14,7 +14,8 @@ import FormOverlay from "@/components/edit-details";
 import { MapCameraProps } from "@vis.gl/react-google-maps";
 import { useSession } from "@/utils/use-session";
 import SearchBar from "@/components/search-bar";
-import { User } from "@prisma/client";
+import { Address, User } from "@prisma/client";
+import { Lock } from 'lucide-react';
 
 const initialCameraState = {
 	center: { lat: 54.7, lng: 12 },
@@ -32,6 +33,12 @@ export default function Home() {
 
 	// overlay de cadastro / edição de contatos
 	const [isOverlayVisible, setOverlayVisibility] = useState<boolean>(false)
+
+	const handleNewCameraCenter = (a: Address) => {
+			const latlng_obj = { lat: a.Lat, lng: a.Lng } as google.maps.LatLng
+			console.log(`Setting center in ${a.streetName} `)
+			setMapCameraCenter(latlng_obj)
+	}
 
 	// user vindo da session
 	const { user: session_user, loadingUser } = useSession()
@@ -138,6 +145,7 @@ export default function Home() {
 												description={user.name || "No description"}
 												image_url="/public/globe.svg"
 												db_info={user}
+												setAddress={(e) => handleNewCameraCenter(e)}
 											/>
 											{index < incomingUsers.length - 1 && <Divider sx={{ width: '100%' }} variant="fullWidth" />}
 										</Stack>
@@ -179,7 +187,7 @@ export default function Home() {
 						<MapView zoom={zoom} setZoom={setZoom} mapCenter={mapCameraCenter} setMapCenter={setMapCameraCenter} />
 					</Box>
 					{/* overlay pra editar os contatos */}
-					{isOverlayVisible && <FormOverlay />}
+					{isOverlayVisible ? (<FormOverlay setOverlayVisibility={setOverlayVisibility} />) : null}
 				</Box>
 			</Box>
 		</Box>
