@@ -7,15 +7,13 @@ export function useSession() {
 	useEffect(() => {
 		async function fetchSession() {
 			const response = await fetch('/api/auth/session')
-			console.log(response)
 			if (response.ok) {
-				const data: JWTPayload = await response.json()
-				console.log(data)
-				setUser(data)
+				const data = await response.json()
+				setUser(data.user)
 			}
 			// preciso adicionar error handling
 		}
-		fetchSession().then(r => console.log(r))
+		fetchSession()
 	}, [])
 	return { user, loading }
 

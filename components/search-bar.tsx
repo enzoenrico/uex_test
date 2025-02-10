@@ -8,7 +8,7 @@ interface PlaceAutocompleteProps {
 	setSelectedPlace: (place: google.maps.places.PlaceResult) => void;
 }
 
-export const SearchBar = ({ setSelectedPlace }) => {
+export const SearchBar = ({ setSelectedPlace }: PlaceAutocompleteProps) => {
 	const [placeAutocomplete, setPlaceAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const places = useMapsLibrary('places');
@@ -17,16 +17,13 @@ export const SearchBar = ({ setSelectedPlace }) => {
 		if (!places || !inputRef.current) return;
 
 		const autocomplete = new places.Autocomplete(inputRef.current, {
-			fields: ['geometry', 'name', 'formatted_address'],
+			fields: ['geometry', 'name', 'formatted_address', 'address_components'] 
 		});
 
 		autocomplete.addListener('place_changed', () => {
-			//lidar com a mudança de local selecionado aqui!!!
-			// por agora vou só adicionar um callback pra um state parent
 			const place = autocomplete.getPlace();
 			console.log('Selected place:', place);
-			setSelectedPlace(place)
-
+			setSelectedPlace(place);
 		});
 
 		setPlaceAutocomplete(autocomplete);

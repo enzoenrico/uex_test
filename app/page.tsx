@@ -14,7 +14,7 @@ import FormOverlay from "@/components/edit-details";
 import { MapCameraProps } from "@vis.gl/react-google-maps";
 import { useSession } from "@/utils/use-session";
 import SearchBar from "@/components/search-bar";
-import { Address, User } from "@prisma/client";
+import { Address, Contact, User } from "@prisma/client";
 import { Lock } from 'lucide-react';
 
 const initialCameraState = {
@@ -29,37 +29,39 @@ export default function Home() {
 
 	const [mapPins, setMapPins] = useState<google.maps.LatLng>([])
 
-	useEffect(() => {
-		console.log(mapCameraCenter)
-	})
 
 	// overlay de cadastro / edição de contatos
 	const [isOverlayVisible, setOverlayVisibility] = useState<boolean>(false)
 
 	const handleNewCameraCenter = (a: Address) => {
 		const latlng_obj = { lat: a.Lat, lng: a.Lng } as google.maps.LatLng
-		console.log(`Setting center in ${a.streetName} `)
 		setMapCameraCenter(latlng_obj)
 		setMapPins([...mapPins, latlng_obj])
 	}
 
 	// user vindo da session
-	const { user: session_user, loadingUser } = useSession()
+	const { user, loading } = useSession()
 
 	const [incomingUsers, setIncomingUsers] = useState<User[] | null>(null)
 
 	useEffect(() => {
 		async function fetchUsers() {
 			try {
-				const users = await fetch('/api/users');
-				const json_users = await users.json();
-				setIncomingUsers(json_users);
+				if (!user?.userId) return;
+				const contacts = await fetch(`/api/contacts/${user.userId}`)
+				if (contacts.ok) {
+					const json_contacts: Contact[] = await contacts.json()
+					setIncomingUsers(json_contacts)
+					console.log(json_contacts)
+				} else {
+					throw new Error('Could not fetch users')
+				}
 			} catch (error) {
-				console.error("Couldn't fetch users")
+				console.error(error)
 			}
 		}
 		fetchUsers();
-	}, [])
+	}, [user?.userId])
 
 	return (
 		<Box
@@ -166,7 +168,7 @@ export default function Home() {
 					}}>
 						{/* session user ta retornando undefined */}
 						<UserCard
-							name={session_user ? session_user.email : "nao "}
+							name={user ? user.email : "nao "}
 							description="change the description for it"
 							image_url="/public/globe.svg"
 						/>
