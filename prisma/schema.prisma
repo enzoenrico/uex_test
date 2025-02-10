@@ -8,24 +8,38 @@ datasource db {
 }
 
 model User {
-	id        String   @id @default(uuid())
-	email     String
-	cpf       String
-	phone     String
-	pass      String
+    id        String    @id @default(uuid())
+    email     String
+    cpf       String    @unique
+    phone     String
+    pass      String
     name      String?
-    address   Address? @relation(fields: [addressId], references: [id])
+    address   Address?  @relation(fields: [addressId], references: [id])
     addressId String?
+    contacts  Contact[]
 }
 
+model Contact {
+    id      String  @id @default(uuid())
+    name    String
+    address Address @relation(fields: [addressId], references: [id])
+
+    User      User?   @relation(fields: [userId], references: [id])
+    userId    String?
+    addressId String
+}
 
 model Address {
-    id           String @id @default(uuid())
+    id           String    @id @default(uuid())
     cep          Int
     streetName   String
     streetNumber Int?
     county       String
-    state        String
+    state        String?
+    Lat          Float     @default(10)
+    Lng          Float     @default(10)
     countryCode  String
+    complement   String?
     User         User[]
+    Contact      Contact[]
 }

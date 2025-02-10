@@ -1,6 +1,6 @@
 "use client"
 
-import { Button, ButtonGroup, Divider, Typography } from "@mui/material";
+import { Button, ButtonGroup, CircularProgress, Divider, Typography } from "@mui/material";
 import { Stack, TextareaAutosize, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 
@@ -9,10 +9,13 @@ import { Box } from "@mui/material";
 import UserCard from "@/components/user-card";
 import MapView from "@/components/map-view";
 import { Tlocation } from "@/types/types";
-import { AddCircle, EmojiPeopleTwoTone, Filter, People, PeopleOutline, Route } from "@mui/icons-material";
+import { AddCircle, EmojiPeopleTwoTone, Filter, People, PeopleOutline, PinSharp, Route, TextDecrease, TextIncrease } from "@mui/icons-material";
 import FormOverlay from "@/components/edit-details";
 import { MapCameraProps } from "@vis.gl/react-google-maps";
 import { useSession } from "@/utils/use-session";
+import { Address, Contact, User } from "@prisma/client";
+import { Lock } from 'lucide-react';
+import ProfileCard from "@/components/profile-card";
 
 const initialCameraState = {
 	center: { lat: 54.7, lng: 12 },
@@ -23,16 +26,72 @@ export default function Home() {
 	// init params
 	const [mapCameraCenter, setMapCameraCenter] = useState<google.maps.LatLng>(initialCameraState.center)
 	const [zoom, setZoom] = useState<number>(initialCameraState.zoom)
-
-	useEffect(() => {
-		console.log(mapCameraCenter)
-	}, [mapCameraCenter])
+	const [mapPins, setMapPins] = useState<google.maps.LatLng>([])
 
 	// overlay de cadastro / edição de contatos
 	const [isOverlayVisible, setOverlayVisibility] = useState<boolean>(false)
 
+	const handleNewCameraCenter = (a: Address) => {
+		const latlng_obj = { lat: a.Lat, lng: a.Lng } as google.maps.LatLng
+		setMapCameraCenter(latlng_obj)
+		setMapPins([...mapPins, latlng_obj])
+	}
+
 	// user vindo da session
-	const { user: session_user, loadingUser } = useSession()
+	const { user, loading } = useSession()
+	const [userInfo, setUserInfo] = useState<User | null>()
+
+	const getLoggedInfo = async () => {
+		const user_data = await fetch(`/api/users/${user?.userId}`)
+		const json_data = await user_data.json()
+		setUserInfo(json_data)
+	}
+
+	const [incomingUsers, setIncomingUsers] = useState<User[] | null>(null)
+	const [invertedAlfabetic, setAlfabeticInverted] = useState(false)
+
+	useEffect(() => {
+		// roda função pra pegar info do usuario logado
+		getLoggedInfo()
+		async function fetchUsers() {
+			try {
+				if (!user?.userId) return;
+				const contacts = await fetch(`/api/contacts/${user.userId}`, {
+					method: 'GET'
+				})
+				if (contacts.ok) {
+					const json_contacts: Contact[] = await contacts.json()
+					setIncomingUsers(json_contacts)
+					// inicializa os users filtrados como os users sem filtro, pra evitar erros de UI
+					setFilteredUsers(json_contacts.sort((a, b) => 
+						invertedAlfabetic ? 
+							a.name.localeCompare(b.name) : 
+							b.name.localeCompare(a.name)
+					))
+					console.log(json_contacts)
+				} else {
+					throw new Error('Fetch falhou')
+				}
+			} catch (error) {
+				console.error(error)
+			}
+		}
+		fetchUsers();
+	}, [user?.userId])
+
+	const [searchText, setSearchText] = useState<string>("")
+	const [filteredUsers, setFilteredUsers] = useState<User[] | null>()
+	const handleFilter = (val: string) => {
+		setSearchText(val)
+		if (val.trim().length < 1) {
+			setFilteredUsers(incomingUsers);
+			return;
+		}
+		const f = incomingUsers?.filter((u) => {
+			return u.name.toLowerCase().includes(val.toLowerCase());
+		});
+		setFilteredUsers(f);
+	}
 
 	return (
 		<Box
@@ -76,20 +135,31 @@ export default function Home() {
 							<AddCircle />
 							<Typography variant="button" >Add a Contact </Typography>
 						</Button>
-						{/* TODO */}
-						{/* Add the filters here */}
+						{/* Button group for filtering */}
 						<ButtonGroup variant="contained" size="medium" sx={{ width: 0.4 }}>
-							<Button onClick={() => setMapCameraCenter({ lat: 10, lng: 10 })}>
-								<People />
+							<Button onClick={() => setAlfabeticInverted(true)}>
+								<TextIncrease />
 							</Button>
-							<Button>
-								<Route />
+							<Button onClick={() => setAlfabeticInverted(false)}>
+								<TextDecrease />
 							</Button>
-							<Button>
+							<Button onClick={() => { setSearchText(""); }}>
 								<Filter />
 							</Button>
 						</ButtonGroup>
 					</Box>
+
+					{/* Replace SearchBar with a TextField search field */}
+					<Box sx={{ width: 1, my: 1 }}>
+						<TextField
+							type="search"
+							placeholder={"Filtrar por nome"}
+							value={searchText}
+							onChange={(e) => handleFilter(e.target.value)}
+							fullWidth
+						/>
+					</Box>
+
 					<Stack sx={{
 						width: 1,
 						height: '90%',
@@ -99,23 +169,27 @@ export default function Home() {
 					}}>
 						{/* map de usuários | placeholder até implementar o banco */}
 						{
-							[...Array(16)].map((v, index) => (
-								<Stack
-									key={index}
-									sx={{
-										width: 1,
-										gap: 1
-									}}>
-									<UserCard
-										name="Lorem Ipsum"
-										description="Placeholder"
-										image_url="/public/globe.svg"
-									/>
-
-									{/* pra no último elemento não ter um divider em baixo */}
-									{index < 15 && <Divider sx={{ width: '100%' }} variant="fullWidth" />}
-								</Stack>
-							))
+							!incomingUsers ? (
+								<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+									<CircularProgress />
+								</Box>
+							) : filteredUsers && filteredUsers.length < 1 ? (
+								<Typography>No users found</Typography>
+							) : (
+								filteredUsers?.map((user, index) => (
+									<Stack key={user.id} sx={{ width: 1, gap: 1 }}>
+										<UserCard
+											name={user.name}
+											description={user.phone || "No description"}
+											image_url="/public/globe.svg"
+											db_info={user}
+											setAddress={(e) => handleNewCameraCenter(e)}
+											id={user.id}
+										/>
+										{index < filteredUsers!.length - 1 && <Divider sx={{ width: '100%' }} variant="fullWidth" />}
+									</Stack>
+								))
+							)
 						}
 					</Stack>
 
@@ -126,13 +200,12 @@ export default function Home() {
 						width: 1,
 						maxHeight: 0.1
 					}}>
-						{/* session user ta retornando undefined */}
-						<UserCard
-							name={session_user ? session_user.email : "nao "}
-							description="change the description for it"
-							image_url="/public/globe.svg"
+						<ProfileCard
+							name={userInfo ? userInfo.name : "Loading "}
+							description={userInfo ? userInfo.email : ":O"}
+							setAddress={(e) => handleNewCameraCenter(e)}
+							db_info={userInfo}
 						/>
-
 					</Stack>
 
 				</Box>
@@ -149,12 +222,17 @@ export default function Home() {
 			}}>
 				<Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
 					<Box sx={{ width: '100%', height: '100%' }}>
-						<MapView zoom={zoom} setZoom={setZoom} mapCenter={mapCameraCenter} setMapCenter={setMapCameraCenter} />
+						<MapView
+							zoom={zoom}
+							setZoom={setZoom}
+							mapCenter={mapCameraCenter}
+							setMapCenter={setMapCameraCenter}
+							pins={mapPins}
+						/>
 					</Box>
 					{/* overlay pra editar os contatos */}
-					{isOverlayVisible && <FormOverlay />}
+					{isOverlayVisible ? (<FormOverlay setOverlayVisibility={setOverlayVisibility} />) : null}
 				</Box>
-
 			</Box>
 		</Box>
 	)
