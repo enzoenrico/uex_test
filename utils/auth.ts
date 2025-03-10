@@ -20,7 +20,7 @@ export async function verifyAuth(request: NextRequest) {
 		return null
 	}
 
-	try {
+	try {ou Trello
 		const { payload } = await jose.jwtVerify(token, JWT_SECRET)
 		return payload as JWTPayload
 	} catch (error) {
